@@ -56,7 +56,32 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await PlantsCollection.findOne(query); 
+      res.send(result); 
+    })
+
+
+        // Do a api operation for update data
+    app.put('/plants/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const updatedPlant = req.body;
+      const updatedDocument = {
+        $set: updatedPlant
+      };
+
+      const result = await PlantsCollection.updateOne(filter, updatedDocument, options);
       res.send(result);
+
+    })
+
+
+        // For delete user data
+    app.delete('/plants/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await PlantsCollection.deleteOne(query);
+      res.send(result)
     })
 
 
