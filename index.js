@@ -28,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
     // ------------------------------------------My operation site-----------------------------------
 
     // Create a data base to store All plants data
@@ -46,25 +46,33 @@ async function run() {
 
     // Make a get operation to get new Plants all data db to client site by making all data api
 
+    // Get all plants
     app.get('/plants', async (req, res) => {
       const result = await PlantsCollection.find().toArray();
       res.send(result)
     })
 
+    // GET my plants by email
+    app.get("/plants/my", async (req, res) => {
+      const email = req.query.email;
+      const result = await PlantsCollection.find({ email }).toArray();
+      res.send(result);
+    });
+
     // Doing a operation to get a single coffee details by using findone
     app.get('/plants/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await PlantsCollection.findOne(query); 
-      res.send(result); 
+      const result = await PlantsCollection.findOne(query);
+      res.send(result);
     })
 
 
-        // Do a api operation for update data
-    app.put('/plants/:id', async(req, res) => {
+    // Do a api operation for update data
+    app.put('/plants/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)};
-      const options = {upsert: true};
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
       const updatedPlant = req.body;
       const updatedDocument = {
         $set: updatedPlant
@@ -76,10 +84,10 @@ async function run() {
     })
 
 
-        // For delete user data
-    app.delete('/plants/:id', async(req, res) => {
+    // For delete user data
+    app.delete('/plants/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id : new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await PlantsCollection.deleteOne(query);
       res.send(result)
     })
@@ -89,8 +97,8 @@ async function run() {
     // ------------------------------------------operation END---------------------------------------
 
     // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
 
   }
