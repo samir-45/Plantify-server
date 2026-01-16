@@ -12,13 +12,15 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d2h2whv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// Create Client
+// Create Client with increased timeout settings
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  connectTimeoutMS: 30000, // 30 seconds
+  socketTimeoutMS: 45000,  // 45 seconds
 });
 
 // Connect immediately and reuse promise
@@ -26,8 +28,13 @@ const clientPromise = client.connect();
 
 // Helper to get collections safely
 async function getCollection(collectionName) {
-    await clientPromise; // Wait for DB connection
-    return client.db('PlantsDB').collection(collectionName);
+    try {
+        await clientPromise; // Wait for DB connection
+        return client.db('PlantsDB').collection(collectionName);
+    } catch (error) {
+        console.error("Database Connection Failed in Helper:", error);
+        throw new Error("Failed to connect to database");
+    }
 }
 
 // ------------------- ROUTES -------------------
